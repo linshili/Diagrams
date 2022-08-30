@@ -1,0 +1,36 @@
+@startuml
+actor Client as  Client
+participant NameService as NameService
+participant RPC as RPC
+
+
+Client-\ NameService : lookupService(serviceName)
+activate NameService
+NameService --> Client: return URI
+deactivate NameService
+
+|||
+
+Client-\RPC : getRemoteService(uri,xxxService.class)
+activate RPC
+
+create xxxStubService
+RPC-\xxxStubService: new
+deactivate RPC
+xxxStubService-->Client: return xxxService (返回桩对象)
+
+
+|||
+
+Client-\xxxStubService:  xxxStubService.hello(name)
+activate xxxStubService
+
+
+xxxStubService-\ Consumer: 构造请求:请求的服务名、请求的所有参数 \nHelloService#hello("World")
+activate Consumer
+Consumer -> Consumer: 解析请求中的服务名，查找服务端进程服务并调用相关方法
+Consumer --> xxxStubService : return response
+deactivate Consumer
+xxxStubService--> Client: return response
+deactivate xxxStubService
+@enduml
